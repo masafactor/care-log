@@ -4,6 +4,7 @@ namespace App\Models;
 
 use App\Enums\ResidentStatus;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Resident extends Model
 {
@@ -30,5 +31,10 @@ class Resident extends Model
     public function isActive(): bool
     {
         return $this->status === ResidentStatus::Active;
+    }
+
+    public function careRecords(): HasMany
+    {
+        return $this->hasMany(CareRecord::class);
     }
 }

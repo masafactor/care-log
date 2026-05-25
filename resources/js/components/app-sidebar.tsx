@@ -1,5 +1,5 @@
 import { Link } from '@inertiajs/react';
-import { BookOpen, FolderGit2, LayoutGrid } from 'lucide-react';
+import { BookOpen, FolderGit2,  } from 'lucide-react';
 import AppLogo from '@/components/app-logo';
 import { NavFooter } from '@/components/nav-footer';
 import { NavMain } from '@/components/nav-main';
@@ -15,7 +15,7 @@ import {
 } from '@/components/ui/sidebar';
 import { dashboard } from '@/routes';
 import type { NavItem } from '@/types';
-import { Users } from 'lucide-react';
+import { Users ,FileText, LayoutGrid,} from 'lucide-react';
 
 const mainNavItems: NavItem[] = [
     {
@@ -27,6 +27,12 @@ const mainNavItems: NavItem[] = [
         title: '利用者管理',
         href: '/residents',
         icon: Users,
+    },
+
+    {
+    title: '介護記録',
+    href: '/care-records',
+    icon: FileText,
     },
 ];
 
