@@ -5,6 +5,7 @@ namespace App\Models;
 use App\Enums\CareRecordType;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class CareRecord extends Model
 {
@@ -55,5 +56,10 @@ class CareRecord extends Model
     public function isVoided(): bool
     {
         return $this->is_voided;
+    }
+
+    public function revisions(): HasMany
+    {
+        return $this->hasMany(CareRecordRevision::class);
     }
 }

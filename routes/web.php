@@ -12,8 +12,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::resource('residents', ResidentController::class)
         ->except(['destroy']);
 
-    Route::resource('care-records', CareRecordController::class)
-    ->only(['index', 'create', 'store', 'show']);
+Route::resource('care-records', CareRecordController::class)
+    ->only(['index', 'create', 'store', 'show', 'edit', 'update']);
 });
 
 

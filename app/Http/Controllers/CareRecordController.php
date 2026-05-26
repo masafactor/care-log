@@ -11,6 +11,8 @@ use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Inertia\Response;
+use App\Application\CareRecords\UseCases\UpdateCareRecordUseCase;
+use App\Http\Requests\UpdateCareRecordRequest;
 
 class CareRecordController extends Controller
 {
@@ -72,7 +74,11 @@ class CareRecordController extends Controller
 
     public function show(CareRecord $careRecord): Response
     {
-        $careRecord->load(['resident', 'staff']);
+        $careRecord->load([
+            'resident',
+            'staff',
+            'revisions.editor',
+        ]);
 
         return Inertia::render('care-records/show', [
             'record' => [
@@ -91,9 +97,30 @@ class CareRecordController extends Controller
                 'content' => $careRecord->content,
                 'recorded_at' => $careRecord->recorded_at->format('Y-m-d H:i'),
                 'is_important' => $careRecord->is_important,
+                'revisions' => $careRecord->revisions
+                    ->sortByDesc('created_at')
+                    ->values()
+                    ->map(fn ($revision) => [
+                        'id' => $revision->id,
+                        'editor' => [
+                            'id' => $revision->editor->id,
+                            'name' => $revision->editor->name,
+                        ],
+                        'old_content' => $revision->old_content,
+                        'new_content' => $revision->new_content,
+                        'old_record_type' => $revision->old_record_type,
+                        'new_record_type' => $revision->new_record_type,
+                        'old_recorded_at' => $revision->old_recorded_at?->format('Y-m-d H:i'),
+                        'new_recorded_at' => $revision->new_recorded_at?->format('Y-m-d H:i'),
+                        'old_is_important' => $revision->old_is_important,
+                        'new_is_important' => $revision->new_is_important,
+                        'reason' => $revision->reason,
+                        'created_at' => $revision->created_at->format('Y-m-d H:i'),
+                    ]),
             ],
         ]);
     }
+      
 
     private function recordTypeOptions(): array
     {
@@ -104,5 +131,42 @@ class CareRecordController extends Controller
             ])
             ->values()
             ->all();
+    }
+
+    public function edit(CareRecord $careRecord): Response
+    {
+        $careRecord->load(['resident', 'staff']);
+
+        return Inertia::render('care-records/edit', [
+            'record' => [
+                'id' => $careRecord->id,
+                'resident' => [
+                    'id' => $careRecord->resident->id,
+                    'name' => $careRecord->resident->name,
+                    'room_number' => $careRecord->resident->room_number,
+                ],
+                'record_type' => $careRecord->record_type->value,
+                'content' => $careRecord->content,
+                'recorded_at' => $careRecord->recorded_at->format('Y-m-d\TH:i'),
+                'is_important' => $careRecord->is_important,
+            ],
+            'recordTypes' => $this->recordTypeOptions(),
+        ]);
+    }
+
+    public function update(
+        UpdateCareRecordRequest $request,
+        CareRecord $careRecord,
+        UpdateCareRecordUseCase $useCase
+    ): RedirectResponse {
+        $useCase->handle(
+            $careRecord,
+            $request->validated(),
+            $request->user()
+        );
+
+        return redirect()
+            ->route('care-records.show', $careRecord)
+            ->with('success', '介護記録を修正しました。');
     }
 }

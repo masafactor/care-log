@@ -30,9 +30,9 @@ const mainNavItems: NavItem[] = [
     },
 
     {
-    title: '介護記録',
-    href: '/care-records',
-    icon: FileText,
+        title: '介護記録',
+        href: '/care-records',
+        icon: FileText,
     },
 ];
 
