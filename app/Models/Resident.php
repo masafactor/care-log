@@ -37,4 +37,9 @@ class Resident extends Model
     {
         return $this->hasMany(CareRecord::class);
     }
+
+    public function handoverNotes(): HasMany
+    {
+        return $this->hasMany(HandoverNote::class);
+    }
 }

@@ -15,7 +15,7 @@ import {
 } from '@/components/ui/sidebar';
 import { dashboard } from '@/routes';
 import type { NavItem } from '@/types';
-import { Users ,FileText, LayoutGrid,} from 'lucide-react';
+import { Users ,FileText, LayoutGrid,ClipboardList} from 'lucide-react';
 
 const mainNavItems: NavItem[] = [
     {
@@ -33,6 +33,11 @@ const mainNavItems: NavItem[] = [
         title: '介護記録',
         href: '/care-records',
         icon: FileText,
+    },
+    {
+    title: '申し送り',
+    href: '/handovers',
+    icon: ClipboardList,
     },
 ];
 
