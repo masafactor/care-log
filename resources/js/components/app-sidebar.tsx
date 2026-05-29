@@ -35,9 +35,9 @@ const mainNavItems: NavItem[] = [
         icon: FileText,
     },
     {
-    title: '申し送り',
-    href: '/handovers',
-    icon: ClipboardList,
+        title: '申し送り',
+        href: '/handovers',
+        icon: ClipboardList,
     },
 ];
 

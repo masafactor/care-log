@@ -5,11 +5,12 @@ use Inertia\Inertia;
 use App\Http\Controllers\ResidentController;
 use App\Http\Controllers\CareRecordController;
 use App\Http\Controllers\HandoverNoteController;
+use App\Http\Controllers\DashboardController;
 
 Route::inertia('/', 'welcome')->name('home');
 
 Route::middleware(['auth', 'verified'])->group(function () {
-    Route::inertia('dashboard', 'dashboard')->name('dashboard');
+    Route::get('dashboard', DashboardController::class)->name('dashboard');
     Route::resource('residents', ResidentController::class)
         ->except(['destroy']);
     Route::resource('handovers', HandoverNoteController::class)
