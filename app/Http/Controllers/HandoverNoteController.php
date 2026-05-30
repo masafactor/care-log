@@ -51,7 +51,7 @@ class HandoverNoteController extends Controller
         ]);
     }
 
-    public function create(): Response
+    public function create(Request $request): Response
     {
         return Inertia::render('handovers/create', [
             'residents' => Resident::query()
@@ -63,6 +63,7 @@ class HandoverNoteController extends Controller
                     'room_number' => $resident->room_number,
                 ]),
             'importanceOptions' => $this->importanceOptions(),
+            'selectedResidentId' => $request->query('resident_id'),
         ]);
     }
 

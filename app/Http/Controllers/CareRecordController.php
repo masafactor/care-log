@@ -46,7 +46,8 @@ class CareRecordController extends Controller
         ]);
     }
 
-    public function create(): Response
+
+    public function create(Request $request): Response
     {
         return Inertia::render('care-records/create', [
             'residents' => Resident::query()
@@ -58,6 +59,7 @@ class CareRecordController extends Controller
                     'room_number' => $resident->room_number,
                 ]),
             'recordTypes' => $this->recordTypeOptions(),
+            'selectedResidentId' => $request->query('resident_id'),
         ]);
     }
 

@@ -17,18 +17,20 @@ type ImportanceOption = {
 type Props = {
     residents: Resident[];
     importanceOptions: ImportanceOption[];
+    selectedResidentId?: string | null;
 };
 
 export default function HandoversCreate({
     residents,
     importanceOptions,
-}: Props) {
+    selectedResidentId,
+}: Props)  {
     const { data, setData, post, processing, errors } = useForm({
-        resident_id: '',
-        title: '',
-        content: '',
-        importance: 'normal',
-        due_at: '',
+    resident_id: selectedResidentId ?? '',
+    title: '',
+    content: '',
+    importance: 'normal',
+    due_at: '',
     });
 
     const submit = (e: FormEvent) => {

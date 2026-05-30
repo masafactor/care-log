@@ -10,6 +10,9 @@ use App\Http\Requests\UpdateResidentRequest;
 use App\Models\Resident;
 use Inertia\Inertia;
 use Inertia\Response;
+use App\Models\CareRecord;
+use App\Models\HandoverNote;
+
 
 class ResidentController extends Controller
 {
@@ -48,8 +51,49 @@ class ResidentController extends Controller
             ->with('success', '利用者を登録しました。');
     }
 
+
     public function show(Resident $resident): Response
     {
+        $careRecords = CareRecord::query()
+            ->with(['staff'])
+            ->where('resident_id', $resident->id)
+            ->where('is_voided', false)
+            ->latest('recorded_at')
+            ->limit(10)
+            ->get()
+            ->map(fn (CareRecord $record) => [
+                'id' => $record->id,
+                'staff' => [
+                    'id' => $record->staff->id,
+                    'name' => $record->staff->name,
+                ],
+                'record_type' => $record->record_type->value,
+                'record_type_label' => $record->record_type->label(),
+                'content' => $record->content,
+                'recorded_at' => $record->recorded_at->format('Y-m-d H:i'),
+                'is_important' => $record->is_important,
+            ]);
+
+        $handoverNotes = HandoverNote::query()
+            ->with(['creator'])
+            ->where('resident_id', $resident->id)
+            ->latest()
+            ->limit(10)
+            ->get()
+            ->map(fn (HandoverNote $note) => [
+                'id' => $note->id,
+                'creator' => [
+                    'id' => $note->creator->id,
+                    'name' => $note->creator->name,
+                ],
+                'title' => $note->title,
+                'content' => $note->content,
+                'importance' => $note->importance->value,
+                'importance_label' => $note->importance->label(),
+                'due_at' => $note->due_at?->format('Y-m-d H:i'),
+                'created_at' => $note->created_at->format('Y-m-d H:i'),
+            ]);
+
         return Inertia::render('residents/show', [
             'resident' => [
                 'id' => $resident->id,
@@ -63,6 +107,8 @@ class ResidentController extends Controller
                 'gender' => $resident->gender,
                 'note' => $resident->note,
             ],
+            'careRecords' => $careRecords,
+            'handoverNotes' => $handoverNotes,
         ]);
     }
 

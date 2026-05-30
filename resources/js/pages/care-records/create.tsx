@@ -14,12 +14,16 @@ type RecordType = {
     label: string;
 };
 
+
 type Props = {
     residents: Resident[];
     recordTypes: RecordType[];
+    selectedResidentId?: string | null;
 };
 
-export default function CareRecordsCreate({ residents, recordTypes }: Props) {
+
+
+export default function CareRecordsCreate({ residents,recordTypes,selectedResidentId,}: Props) {
     const now = new Date();
     const defaultRecordedAt = new Date(
         now.getTime() - now.getTimezoneOffset() * 60000,
@@ -27,12 +31,12 @@ export default function CareRecordsCreate({ residents, recordTypes }: Props) {
         .toISOString()
         .slice(0, 16);
 
-    const { data, setData, post, processing, errors } = useForm({
-        resident_id: '',
-        record_type: 'condition',
-        content: '',
-        recorded_at: defaultRecordedAt,
-        is_important: false,
+   const { data, setData, post, processing, errors } = useForm({
+    resident_id: selectedResidentId ?? '',
+    record_type: 'condition',
+    content: '',
+    recorded_at: defaultRecordedAt,
+    is_important: false,
     });
 
     const submit = (e: FormEvent) => {
