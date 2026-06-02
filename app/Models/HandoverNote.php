@@ -6,6 +6,7 @@ use App\Enums\HandoverImportance;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use App\Enums\HandoverStatus;
 
 class HandoverNote extends Model
 {
@@ -16,6 +17,9 @@ class HandoverNote extends Model
         'content',
         'importance',
         'due_at',
+        'status',
+        'completed_by',
+        'completed_at',
     ];
 
     protected function casts(): array
@@ -23,6 +27,8 @@ class HandoverNote extends Model
         return [
             'importance' => HandoverImportance::class,
             'due_at' => 'datetime',
+            'status' => HandoverStatus::class,
+            'completed_at' => 'datetime',
         ];
     }
 
@@ -44,5 +50,20 @@ class HandoverNote extends Model
     public function isReadBy(User $user): bool
     {
         return $this->reads->contains('user_id', $user->id);
+    }
+
+    public function completedBy(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'completed_by');
+    }
+
+    public function isCompleted(): bool
+    {
+        return $this->status === HandoverStatus::Completed;
+    }
+
+    public function isOpen(): bool
+    {
+        return $this->status === HandoverStatus::Open;
     }
 }

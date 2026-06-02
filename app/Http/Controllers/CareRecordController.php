@@ -18,9 +18,26 @@ class CareRecordController extends Controller
 {
     public function index(Request $request): Response
     {
+        $search = $request->query('search');
+        $recordType = $request->query('record_type');
+        $important = $request->query('important');
+
         $records = CareRecord::query()
             ->with(['resident', 'staff'])
             ->where('is_voided', false)
+            ->when($search, function ($query, $search) {
+                $query->whereHas('resident', function ($query) use ($search) {
+                    $query->where('name', 'like', "%{$search}%")
+                        ->orWhere('name_kana', 'like', "%{$search}%")
+                        ->orWhere('room_number', 'like', "%{$search}%");
+                });
+            })
+            ->when($recordType, function ($query, $recordType) {
+                $query->where('record_type', $recordType);
+            })
+            ->when($important === '1', function ($query) {
+                $query->where('is_important', true);
+            })
             ->latest('recorded_at')
             ->get()
             ->map(fn (CareRecord $record) => [
@@ -43,6 +60,12 @@ class CareRecordController extends Controller
 
         return Inertia::render('care-records/index', [
             'records' => $records,
+            'recordTypes' => $this->recordTypeOptions(),
+            'filters' => [
+                'search' => $search,
+                'record_type' => $recordType,
+                'important' => $important,
+            ],
         ]);
     }
 

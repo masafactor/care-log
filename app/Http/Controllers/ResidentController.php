@@ -12,26 +12,43 @@ use Inertia\Inertia;
 use Inertia\Response;
 use App\Models\CareRecord;
 use App\Models\HandoverNote;
-
+use Illuminate\Http\Request;
 
 class ResidentController extends Controller
 {
-    public function index(): Response
+
+    public function index(Request $request): Response
+    
     {
+        $search = $request->query('search');
+
+        $residents = Resident::query()
+            ->when($search, function ($query, $search) {
+                $query->where(function ($query) use ($search) {
+                    $query->where('name', 'like', "%{$search}%")
+                        ->orWhere('name_kana', 'like', "%{$search}%")
+                        ->orWhere('room_number', 'like', "%{$search}%");
+                });
+            })
+            ->orderBy('room_number')
+            ->get()
+            ->map(fn (Resident $resident) => [
+                'id' => $resident->id,
+                'name' => $resident->name,
+                'name_kana' => $resident->name_kana,
+                'room_number' => $resident->room_number,
+                'care_level' => $resident->care_level,
+                'status' => $resident->status->value,
+                'status_label' => $resident->status->label(),
+                'birth_date' => $resident->birth_date?->format('Y-m-d'),
+                'gender' => $resident->gender,
+            ]);
+
         return Inertia::render('residents/index', [
-            'residents' => Resident::query()
-                ->latest()
-                ->get()
-                ->map(fn (Resident $resident) => [
-                    'id' => $resident->id,
-                    'name' => $resident->name,
-                    'name_kana' => $resident->name_kana,
-                    'room_number' => $resident->room_number,
-                    'care_level' => $resident->care_level,
-                    'status' => $resident->status->value,
-                    'status_label' => $resident->status->label(),
-                    'birth_date' => $resident->birth_date?->format('Y-m-d'),
-                ]),
+            'residents' => $residents,
+            'filters' => [
+                'search' => $search,
+            ],
         ]);
     }
 
@@ -58,6 +75,7 @@ class ResidentController extends Controller
             ->with(['staff'])
             ->where('resident_id', $resident->id)
             ->where('is_voided', false)
+            ->where('status', 'open')
             ->latest('recorded_at')
             ->limit(10)
             ->get()

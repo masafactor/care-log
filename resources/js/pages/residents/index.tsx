@@ -1,6 +1,7 @@
 import AppLayout from '@/layouts/app-layout';
-import { Head, Link } from '@inertiajs/react';
 import { route } from 'ziggy-js';
+import { Head, Link, router } from '@inertiajs/react';
+import { FormEvent, useState } from 'react';
 type Resident = {
     id: number;
     name: string;
@@ -14,15 +15,70 @@ type Resident = {
 
 type Props = {
     residents: Resident[];
+    filters: {
+        search?: string | null;
+    };
 };
 
-export default function ResidentsIndex({ residents }: Props) {
+export default function ResidentsIndex({ residents, filters }: Props) {
+    const [search, setSearch] = useState(filters.search ?? '');
+
+    const submit = (e: FormEvent) => {
+        e.preventDefault();
+
+        router.get(
+            route('residents.index'),
+            { search },
+            {
+                preserveState: true,
+                replace: true,
+            },
+        );
+    };
+
+    const clear = () => {
+        setSearch('');
+
+        router.get(
+            route('residents.index'),
+            {},
+            {
+                preserveState: true,
+                replace: true,
+            },
+        );
+    };
+
     return (
         <AppLayout>
             <Head title="利用者一覧" />
 
             <div className="p-6">
                 <div className="mb-6 flex items-center justify-between">
+                    <form onSubmit={submit} className="mb-6 flex gap-3">
+                        <input
+                            type="text"
+                            value={search}
+                            onChange={(e) => setSearch(e.target.value)}
+                            className="w-full max-w-md rounded-md border px-3 py-2 text-sm"
+                            placeholder="名前・ふりがな・居室番号で検索"
+                        />
+
+                        <button
+                            type="submit"
+                            className="rounded-md bg-black px-4 py-2 text-sm font-medium text-white"
+                        >
+                            検索
+                        </button>
+
+                        <button
+                            type="button"
+                            onClick={clear}
+                            className="rounded-md border px-4 py-2 text-sm"
+                        >
+                            クリア
+                        </button>
+                    </form>
                     <div>
                         <h1 className="text-2xl font-bold">利用者一覧</h1>
                         <p className="mt-1 text-sm text-muted-foreground">

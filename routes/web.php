@@ -19,8 +19,16 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::post('handovers/{handover}/read', [HandoverNoteController::class, 'markAsRead'])
         ->name('handovers.read');
 
-Route::resource('care-records', CareRecordController::class)
+    Route::resource('care-records', CareRecordController::class)
+        ->only(['index', 'create', 'store', 'show', 'edit', 'update']);
+    Route::resource('handovers', HandoverNoteController::class)
     ->only(['index', 'create', 'store', 'show', 'edit', 'update']);
+
+    Route::post('handovers/{handover}/read', [HandoverNoteController::class, 'markAsRead'])
+        ->name('handovers.read');
+
+    Route::post('handovers/{handover}/complete', [HandoverNoteController::class, 'complete'])
+        ->name('handovers.complete');
 });
 
 

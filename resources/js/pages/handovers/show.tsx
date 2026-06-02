@@ -29,6 +29,14 @@ type HandoverNote = {
     due_at: string | null;
     created_at: string;
     reads: ReadUser[];
+
+    status: string;
+    status_label: string;
+    completed_by: {
+        id: number;
+        name: string;
+    } | null;
+    completed_at: string | null;
 };
 
 type Props = {
@@ -40,11 +48,16 @@ export default function HandoversShow({ note }: Props) {
         router.post(route('handovers.read', note.id));
     };
 
+    const complete = () => {
+    router.post(route('handovers.complete', note.id));
+    };
+
     return (
         <AppLayout>
             <Head title={`申し送り詳細 - ${note.title}`} />
 
             <div className="p-6">
+                
                 <div className="mb-6 flex items-center justify-between">
                     <div>
                         <h1 className="text-2xl font-bold">申し送り詳細</h1>
@@ -54,6 +67,15 @@ export default function HandoversShow({ note }: Props) {
                     </div>
 
                     <div className="flex gap-3">
+                            {note.status !== 'completed' && (
+                                <button
+                                    type="button"
+                                    onClick={complete}
+                                    className="rounded-md bg-green-700 px-4 py-2 text-sm font-medium text-white"
+                                >
+                                    完了にする
+                                </button>
+                            )}
                         <button
                             type="button"
                             onClick={markAsRead}
@@ -61,6 +83,13 @@ export default function HandoversShow({ note }: Props) {
                         >
                             既読にする
                         </button>
+
+                        <Link
+                            href={route('handovers.edit', note.id)}
+                            className="rounded-md border px-4 py-2 text-sm"
+                        >
+                            編集
+                        </Link>
 
                         <Link
                             href={route('handovers.index')}
@@ -75,6 +104,11 @@ export default function HandoversShow({ note }: Props) {
                     <div className="mb-5 flex items-center gap-3">
                         <span className="rounded-full bg-gray-100 px-2 py-1 text-xs">
                             {note.importance_label}
+                        </span>
+
+
+                        <span className="rounded-full bg-gray-100 px-2 py-1 text-xs">
+                            {note.status_label}
                         </span>
 
                         {note.due_at && (
@@ -122,6 +156,20 @@ export default function HandoversShow({ note }: Props) {
                                 {note.created_at}
                             </dd>
                         </div>
+
+                        {note.completed_at && (
+                            <div>
+                                <dt className="text-sm text-muted-foreground">
+                                    完了日時
+                                </dt>
+                                <dd className="mt-1 font-medium">
+                                    {note.completed_at}
+                                    {note.completed_by
+                                        ? ` / ${note.completed_by.name}`
+                                        : ''}
+                                </dd>
+                            </div>
+                        )}
                     </dl>
 
                     <div className="mt-6 border-t pt-6">

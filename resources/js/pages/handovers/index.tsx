@@ -1,6 +1,7 @@
 import AppLayout from '@/layouts/app-layout';
-import { Head, Link } from '@inertiajs/react';
 import { route } from 'ziggy-js';
+import { Head, Link, router } from '@inertiajs/react';
+import { FormEvent, useState } from 'react';
 
 type HandoverNote = {
     id: number;
@@ -21,18 +22,125 @@ type HandoverNote = {
     created_at: string;
     is_read: boolean;
     read_count: number;
+    status: string;
+    status_label: string;
+    completed_at: string | null;
+};
+
+type Option = {
+    value: string;
+    label: string;
 };
 
 type Props = {
     notes: HandoverNote[];
+    importanceOptions: Option[];
+    statusOptions: Option[];
+    filters: {
+        search?: string | null;
+        importance?: string | null;
+        status?: string | null;
+    };
 };
 
-export default function HandoversIndex({ notes }: Props) {
+export default function HandoversIndex({
+    notes,
+    importanceOptions,
+    statusOptions,
+    filters,
+}: Props) {
+    const [search, setSearch] = useState(filters.search ?? '');
+    const [importance, setImportance] = useState(filters.importance ?? '');
+    const [status, setStatus] = useState(filters.status ?? '');
+
+    const submit = (e: FormEvent) => {
+        e.preventDefault();
+
+        router.get(
+            route('handovers.index'),
+            {
+                search,
+                importance,
+                status,
+            },
+            {
+                preserveState: true,
+                replace: true,
+            },
+        );
+    };
+
+    const clear = () => {
+        setSearch('');
+        setImportance('');
+        setStatus('');
+
+        router.get(
+            route('handovers.index'),
+            {},
+            {
+                preserveState: true,
+                replace: true,
+            },
+        );
+    };
     return (
         <AppLayout>
             <Head title="申し送り一覧" />
 
             <div className="p-6">
+                <form onSubmit={submit} className="mb-6 grid gap-3 md:grid-cols-4">
+                    <input
+                        type="text"
+                        value={search}
+                        onChange={(e) => setSearch(e.target.value)}
+                        className="rounded-md border px-3 py-2 text-sm"
+                        placeholder="タイトル・内容・利用者名で検索"
+                    />
+
+                    <select
+                        value={importance}
+                        onChange={(e) => setImportance(e.target.value)}
+                        className="rounded-md border px-3 py-2 text-sm"
+                    >
+                        <option value="">すべての重要度</option>
+                        {importanceOptions.map((option) => (
+                            <option key={option.value} value={option.value}>
+                                {option.label}
+                            </option>
+                        ))}
+                    </select>
+
+                    <select
+                        value={status}
+                        onChange={(e) => setStatus(e.target.value)}
+                        className="rounded-md border px-3 py-2 text-sm"
+                    >
+                        <option value="">すべてのステータス</option>
+                        {statusOptions.map((option) => (
+                            <option key={option.value} value={option.value}>
+                                {option.label}
+                            </option>
+                        ))}
+                    </select>
+
+                    <div className="flex gap-2">
+                        <button
+                            type="submit"
+                            className="rounded-md bg-black px-4 py-2 text-sm font-medium text-white"
+                        >
+                            絞り込み
+                        </button>
+
+                        <button
+                            type="button"
+                            onClick={clear}
+                            className="rounded-md border px-4 py-2 text-sm"
+                        >
+                            クリア
+                        </button>
+                    </div>
+                </form>
                 <div className="mb-6 flex items-center justify-between">
                     <div>
                         <h1 className="text-2xl font-bold">申し送り一覧</h1>
@@ -56,6 +164,7 @@ export default function HandoversIndex({ notes }: Props) {
                                 <th className="px-4 py-3">状態</th>
                                 <th className="px-4 py-3">重要度</th>
                                 <th className="px-4 py-3">タイトル</th>
+                                <th className="px-4 py-3">ステータス</th>
                                 <th className="px-4 py-3">利用者</th>
                                 <th className="px-4 py-3">作成者</th>
                                 <th className="px-4 py-3">期限</th>
@@ -68,7 +177,7 @@ export default function HandoversIndex({ notes }: Props) {
                             {notes.length === 0 ? (
                                 <tr>
                                     <td
-                                        colSpan={8}
+                                        colSpan={9}
                                         className="px-4 py-8 text-center text-muted-foreground"
                                     >
                                         申し送りはありません。
@@ -102,6 +211,12 @@ export default function HandoversIndex({ notes }: Props) {
                                             <div className="mt-1 line-clamp-1 text-xs text-muted-foreground">
                                                 {note.content}
                                             </div>
+                                        </td>
+
+                                        <td className="px-4 py-3">
+                                            <span className="rounded-full bg-gray-100 px-2 py-1 text-xs">
+                                                {note.status_label}
+                                            </span>
                                         </td>
 
                                         <td className="px-4 py-3">

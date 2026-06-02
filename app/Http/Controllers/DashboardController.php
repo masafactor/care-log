@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Enums\HandoverStatus;
 use App\Models\CareRecord;
 use App\Models\HandoverNote;
 use Illuminate\Http\Request;
@@ -20,12 +21,14 @@ class DashboardController extends Controller
             ->count();
 
         $unreadHandoverCount = HandoverNote::query()
+            ->where('status', HandoverStatus::Open->value)
             ->whereDoesntHave('reads', function ($query) use ($user) {
                 $query->where('user_id', $user->id);
             })
             ->count();
 
         $importantHandoverCount = HandoverNote::query()
+            ->where('status', HandoverStatus::Open->value)
             ->whereIn('importance', ['important', 'urgent'])
             ->count();
 
@@ -54,6 +57,7 @@ class DashboardController extends Controller
 
         $unreadHandovers = HandoverNote::query()
             ->with(['resident', 'creator', 'reads'])
+            ->where('status', HandoverStatus::Open->value)
             ->whereDoesntHave('reads', function ($query) use ($user) {
                 $query->where('user_id', $user->id);
             })

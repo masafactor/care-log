@@ -1,7 +1,7 @@
 import AppLayout from '@/layouts/app-layout';
-import { Head, Link } from '@inertiajs/react';
 import { route } from 'ziggy-js';
-
+import { Head, Link, router } from '@inertiajs/react';
+import { FormEvent, useState } from 'react';
 type CareRecord = {
     id: number;
     resident: {
@@ -20,11 +20,61 @@ type CareRecord = {
     is_important: boolean;
 };
 
-type Props = {
-    records: CareRecord[];
+type RecordType = {
+    value: string;
+    label: string;
 };
 
-export default function CareRecordsIndex({ records }: Props) {
+type Props = {
+    records: CareRecord[];
+    recordTypes: RecordType[];
+    filters: {
+        search?: string | null;
+        record_type?: string | null;
+        important?: string | null;
+    };
+};
+
+export default function CareRecordsIndex({
+    records,
+    recordTypes,
+    filters,
+}: Props) {
+    const [search, setSearch] = useState(filters.search ?? '');
+    const [recordType, setRecordType] = useState(filters.record_type ?? '');
+    const [important, setImportant] = useState(filters.important ?? '');
+
+    const submit = (e: FormEvent) => {
+        e.preventDefault();
+
+        router.get(
+            route('care-records.index'),
+            {
+                search,
+                record_type: recordType,
+                important,
+            },
+            {
+                preserveState: true,
+                replace: true,
+            },
+        );
+    };
+
+    const clear = () => {
+        setSearch('');
+        setRecordType('');
+        setImportant('');
+
+        router.get(
+            route('care-records.index'),
+            {},
+            {
+                preserveState: true,
+                replace: true,
+            },
+        );
+    };
     return (
         <AppLayout>
             <Head title="介護記録一覧" />
@@ -37,6 +87,55 @@ export default function CareRecordsIndex({ records }: Props) {
                             利用者ごとの日々の介護記録を確認します。
                         </p>
                     </div>
+
+                    <form onSubmit={submit} className="mb-6 grid gap-3 md:grid-cols-4">
+                        <input
+                            type="text"
+                            value={search}
+                            onChange={(e) => setSearch(e.target.value)}
+                            className="rounded-md border px-3 py-2 text-sm"
+                            placeholder="利用者名・居室番号で検索"
+                        />
+
+                        <select
+                            value={recordType}
+                            onChange={(e) => setRecordType(e.target.value)}
+                            className="rounded-md border px-3 py-2 text-sm"
+                        >
+                            <option value="">すべての記録種別</option>
+                            {recordTypes.map((type) => (
+                                <option key={type.value} value={type.value}>
+                                    {type.label}
+                                </option>
+                            ))}
+                        </select>
+
+                        <select
+                            value={important}
+                            onChange={(e) => setImportant(e.target.value)}
+                            className="rounded-md border px-3 py-2 text-sm"
+                        >
+                            <option value="">重要指定なし</option>
+                            <option value="1">重要のみ</option>
+                        </select>
+
+                        <div className="flex gap-2">
+                            <button
+                                type="submit"
+                                className="rounded-md bg-black px-4 py-2 text-sm font-medium text-white"
+                            >
+                                絞り込み
+                            </button>
+
+                            <button
+                                type="button"
+                                onClick={clear}
+                                className="rounded-md border px-4 py-2 text-sm"
+                            >
+                                クリア
+                            </button>
+                        </div>
+                    </form>
 
                     <Link
                         href={route('care-records.create')}
