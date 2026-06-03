@@ -19,6 +19,7 @@ use App\Enums\HandoverStatus;
 
 class HandoverNoteController extends Controller
 {
+
     public function index(Request $request): Response
     {
         $user = $request->user();
@@ -47,8 +48,9 @@ class HandoverNoteController extends Controller
                 $query->where('status', $status);
             })
             ->latest()
-            ->get()
-            ->map(fn (HandoverNote $note) => [
+            ->paginate(10)
+            ->withQueryString()
+            ->through(fn (HandoverNote $note) => [
                 'id' => $note->id,
                 'resident' => $note->resident
                     ? [
@@ -90,7 +92,7 @@ class HandoverNoteController extends Controller
                 'status' => $status,
             ],
         ]);
-}
+    }
 
     public function create(Request $request): Response
     {

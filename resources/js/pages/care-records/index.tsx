@@ -2,6 +2,10 @@ import AppLayout from '@/layouts/app-layout';
 import { route } from 'ziggy-js';
 import { Head, Link, router } from '@inertiajs/react';
 import { FormEvent, useState } from 'react';
+import Pagination from '@/components/pagination';
+import type { PaginatedData } from '@/types/pagination';
+
+
 type CareRecord = {
     id: number;
     resident: {
@@ -26,7 +30,7 @@ type RecordType = {
 };
 
 type Props = {
-    records: CareRecord[];
+    records: PaginatedData<CareRecord>;
     recordTypes: RecordType[];
     filters: {
         search?: string | null;
@@ -160,7 +164,7 @@ export default function CareRecordsIndex({
                         </thead>
 
                         <tbody>
-                            {records.length === 0 ? (
+                            {records.data.length === 0 ? (
                                 <tr>
                                     <td
                                         colSpan={7}
@@ -170,7 +174,7 @@ export default function CareRecordsIndex({
                                     </td>
                                 </tr>
                             ) : (
-                                records.map((record) => (
+                                records.data.map((record) => (
                                     <tr key={record.id} className="border-b">
                                         <td className="px-4 py-3">
                                             {record.recorded_at}
@@ -230,6 +234,7 @@ export default function CareRecordsIndex({
                         </tbody>
                     </table>
                 </div>
+                <Pagination pagination={records} />
             </div>
         </AppLayout>
     );

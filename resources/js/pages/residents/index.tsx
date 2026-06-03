@@ -2,6 +2,9 @@ import AppLayout from '@/layouts/app-layout';
 import { route } from 'ziggy-js';
 import { Head, Link, router } from '@inertiajs/react';
 import { FormEvent, useState } from 'react';
+import Pagination from '@/components/pagination';
+import type { PaginatedData } from '@/types/pagination';
+
 type Resident = {
     id: number;
     name: string;
@@ -14,7 +17,7 @@ type Resident = {
 };
 
 type Props = {
-    residents: Resident[];
+    residents: PaginatedData<Resident>;
     filters: {
         search?: string | null;
     };
@@ -107,7 +110,7 @@ export default function ResidentsIndex({ residents, filters }: Props) {
                             </tr>
                         </thead>
                         <tbody>
-                            {residents.length === 0 ? (
+                            {residents.data.length === 0 ? (
                                 <tr>
                                     <td
                                         colSpan={6}
@@ -117,7 +120,7 @@ export default function ResidentsIndex({ residents, filters }: Props) {
                                     </td>
                                 </tr>
                             ) : (
-                                residents.map((resident) => (
+                                residents.data.map((resident) => (
                                     <tr key={resident.id} className="border-b">
                                         <td className="px-4 py-3">
                                             <div className="font-medium">
@@ -173,6 +176,8 @@ export default function ResidentsIndex({ residents, filters }: Props) {
                         </tbody>
                     </table>
                 </div>
+
+                <Pagination pagination={residents} />
             </div>
         </AppLayout>
     );

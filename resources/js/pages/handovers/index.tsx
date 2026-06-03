@@ -2,6 +2,9 @@ import AppLayout from '@/layouts/app-layout';
 import { route } from 'ziggy-js';
 import { Head, Link, router } from '@inertiajs/react';
 import { FormEvent, useState } from 'react';
+import Pagination from '@/components/pagination';
+import type { PaginatedData } from '@/types/pagination';
+
 
 type HandoverNote = {
     id: number;
@@ -33,7 +36,7 @@ type Option = {
 };
 
 type Props = {
-    notes: HandoverNote[];
+    notes: PaginatedData<HandoverNote>;
     importanceOptions: Option[];
     statusOptions: Option[];
     filters: {
@@ -174,7 +177,7 @@ export default function HandoversIndex({
                         </thead>
 
                         <tbody>
-                            {notes.length === 0 ? (
+                            {notes.data.length === 0 ? (
                                 <tr>
                                     <td
                                         colSpan={9}
@@ -184,7 +187,7 @@ export default function HandoversIndex({
                                     </td>
                                 </tr>
                             ) : (
-                                notes.map((note) => (
+                                notes.data.map((note) => (
                                     <tr key={note.id} className="border-b">
                                         <td className="px-4 py-3">
                                             {note.is_read ? (
@@ -267,6 +270,7 @@ export default function HandoversIndex({
                         </tbody>
                     </table>
                 </div>
+                <Pagination pagination={notes} />
             </div>
         </AppLayout>
     );

@@ -18,7 +18,6 @@ class ResidentController extends Controller
 {
 
     public function index(Request $request): Response
-    
     {
         $search = $request->query('search');
 
@@ -31,8 +30,9 @@ class ResidentController extends Controller
                 });
             })
             ->orderBy('room_number')
-            ->get()
-            ->map(fn (Resident $resident) => [
+            ->paginate(10)
+            ->withQueryString()
+            ->through(fn (Resident $resident) => [
                 'id' => $resident->id,
                 'name' => $resident->name,
                 'name_kana' => $resident->name_kana,

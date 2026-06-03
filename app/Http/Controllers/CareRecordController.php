@@ -16,6 +16,7 @@ use App\Http\Requests\UpdateCareRecordRequest;
 
 class CareRecordController extends Controller
 {
+   
     public function index(Request $request): Response
     {
         $search = $request->query('search');
@@ -39,8 +40,9 @@ class CareRecordController extends Controller
                 $query->where('is_important', true);
             })
             ->latest('recorded_at')
-            ->get()
-            ->map(fn (CareRecord $record) => [
+            ->paginate(10)
+            ->withQueryString()
+            ->through(fn (CareRecord $record) => [
                 'id' => $record->id,
                 'resident' => [
                     'id' => $record->resident->id,
