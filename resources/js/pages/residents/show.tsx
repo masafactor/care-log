@@ -46,13 +46,15 @@ type Props = {
     resident: Resident;
     careRecords: CareRecord[];
     handoverNotes: HandoverNote[];
+    returnUrl?: string | null;
 };
 
 export default function ResidentsShow({
     resident,
     careRecords,
     handoverNotes,
-}: Props) {
+    returnUrl,
+}: Props)  {
     return (
         <AppLayout>
             <Head title={`利用者詳細 - ${resident.name}`} />
@@ -93,7 +95,7 @@ export default function ResidentsShow({
                         </Link>
 
                         <Link
-                            href={route('residents.index')}
+                            href={returnUrl ?? route('residents.index')}
                             className="rounded-md border px-4 py-2 text-sm"
                         >
                             一覧へ戻る

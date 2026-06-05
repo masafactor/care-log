@@ -121,11 +121,12 @@ class HandoverNoteController extends Controller
             ->with('success', '申し送りを作成しました。');
     }
 
-    public function show(HandoverNote $handover): Response
+    public function show(Request $request, HandoverNote $handover): Response
     {
 
         $handover->load(['resident', 'creator', 'reads.user', 'completedBy']);
         return Inertia::render('handovers/show', [
+            'returnUrl' => $request->query('return_url'),
             'note' => [
                 'id' => $handover->id,
                 'resident' => $handover->resident
@@ -157,6 +158,7 @@ class HandoverNoteController extends Controller
                         'read_at' => $read->read_at->format('Y-m-d H:i'),
                     ]),
             ],
+            
             'status' => $handover->status->value,
             'status_label' => $handover->status->label(),
             'completed_by' => $handover->completedBy

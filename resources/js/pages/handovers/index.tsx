@@ -4,6 +4,7 @@ import { Head, Link, router } from '@inertiajs/react';
 import { FormEvent, useState } from 'react';
 import Pagination from '@/components/pagination';
 import type { PaginatedData } from '@/types/pagination';
+import { currentReturnUrl } from '@/lib/return-url';
 
 
 type HandoverNote = {
@@ -255,10 +256,10 @@ export default function HandoversIndex({
 
                                         <td className="px-4 py-3">
                                             <Link
-                                                href={route(
-                                                    'handovers.show',
-                                                    note.id,
-                                                )}
+                                               href={route('handovers.show', {
+                                                    handover: note.id,
+                                                    return_url: currentReturnUrl(),
+                                                })}
                                                 className="text-blue-600 hover:underline"
                                             >
                                                 詳細

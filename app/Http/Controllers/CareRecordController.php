@@ -99,7 +99,7 @@ class CareRecordController extends Controller
             ->with('success', '介護記録を作成しました。');
     }
 
-    public function show(CareRecord $careRecord): Response
+    public function show(Request $request, CareRecord $careRecord): Response
     {
         $careRecord->load([
             'resident',
@@ -124,6 +124,7 @@ class CareRecordController extends Controller
                 'content' => $careRecord->content,
                 'recorded_at' => $careRecord->recorded_at->format('Y-m-d H:i'),
                 'is_important' => $careRecord->is_important,
+                'returnUrl' => $request->query('return_url'),
                 'revisions' => $careRecord->revisions
                     ->sortByDesc('created_at')
                     ->values()
@@ -144,6 +145,7 @@ class CareRecordController extends Controller
                         'reason' => $revision->reason,
                         'created_at' => $revision->created_at->format('Y-m-d H:i'),
                     ]),
+                    
             ],
         ]);
     }

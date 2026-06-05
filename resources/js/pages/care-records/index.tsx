@@ -4,6 +4,7 @@ import { Head, Link, router } from '@inertiajs/react';
 import { FormEvent, useState } from 'react';
 import Pagination from '@/components/pagination';
 import type { PaginatedData } from '@/types/pagination';
+import { currentReturnUrl } from '@/lib/return-url';
 
 
 type CareRecord = {
@@ -219,10 +220,10 @@ export default function CareRecordsIndex({
 
                                         <td className="px-4 py-3">
                                             <Link
-                                                href={route(
-                                                    'care-records.show',
-                                                    record.id,
-                                                )}
+                                             href={route('care-records.show', {
+                                                    care_record: record.id,
+                                                    return_url: currentReturnUrl(),
+                                                })}
                                                 className="text-blue-600 hover:underline"
                                             >
                                                 詳細

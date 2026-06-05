@@ -69,13 +69,12 @@ class ResidentController extends Controller
     }
 
 
-    public function show(Resident $resident): Response
+    public function show(Request $request, Resident $resident): Response
     {
         $careRecords = CareRecord::query()
             ->with(['staff'])
             ->where('resident_id', $resident->id)
             ->where('is_voided', false)
-            ->where('status', 'open')
             ->latest('recorded_at')
             ->limit(10)
             ->get()
@@ -113,6 +112,7 @@ class ResidentController extends Controller
             ]);
 
         return Inertia::render('residents/show', [
+            'returnUrl' => $request->query('return_url'),
             'resident' => [
                 'id' => $resident->id,
                 'name' => $resident->name,

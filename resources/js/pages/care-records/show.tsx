@@ -40,9 +40,10 @@ type Revision = {
 };
 type Props = {
     record: CareRecord;
+    returnUrl?: string | null;
 };
 
-export default function CareRecordsShow({ record }: Props) {
+export default function CareRecordsShow({ record, returnUrl }: Props) {
     return (
         <AppLayout>
             <Head title={`介護記録詳細 - ${record.resident.name}`} />
@@ -65,7 +66,7 @@ export default function CareRecordsShow({ record }: Props) {
                         </Link>
 
                         <Link
-                            href={route('care-records.index')}
+                            href={returnUrl ?? route('care-records.index')}
                             className="rounded-md border px-4 py-2 text-sm"
                         >
                             一覧へ戻る

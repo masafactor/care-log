@@ -41,9 +41,10 @@ type HandoverNote = {
 
 type Props = {
     note: HandoverNote;
+    returnUrl?: string | null;
 };
 
-export default function HandoversShow({ note }: Props) {
+export default function HandoversShow({ note, returnUrl }: Props) {
     const markAsRead = () => {
         router.post(route('handovers.read', note.id));
     };
@@ -92,7 +93,7 @@ export default function HandoversShow({ note }: Props) {
                         </Link>
 
                         <Link
-                            href={route('handovers.index')}
+                            href={returnUrl ?? route('handovers.index')}
                             className="rounded-md border px-4 py-2 text-sm"
                         >
                             一覧へ戻る

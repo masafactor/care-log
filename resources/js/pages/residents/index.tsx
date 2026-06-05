@@ -4,6 +4,7 @@ import { Head, Link, router } from '@inertiajs/react';
 import { FormEvent, useState } from 'react';
 import Pagination from '@/components/pagination';
 import type { PaginatedData } from '@/types/pagination';
+import { currentReturnUrl } from '@/lib/return-url';
 
 type Resident = {
     id: number;
@@ -151,10 +152,10 @@ export default function ResidentsIndex({ residents, filters }: Props) {
                                         <td className="px-4 py-3">
                                             <div className="flex gap-3">
                                                 <Link
-                                                    href={route(
-                                                        'residents.show',
-                                                        resident.id,
-                                                    )}
+                                                   href={route('residents.show', {
+                                                        resident: resident.id,
+                                                        return_url: currentReturnUrl(),
+                                                    })}
                                                     className="text-blue-600 hover:underline"
                                                 >
                                                     詳細
