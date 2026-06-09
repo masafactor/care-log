@@ -13,6 +13,7 @@ type Resident = {
     birth_date: string | null;
     gender: string | null;
     note: string | null;
+    resident_code: string | null;
 };
 
 type CareRecord = {
@@ -112,6 +113,14 @@ export default function ResidentsShow({
                     </div>
 
                     <dl className="grid gap-5 md:grid-cols-2">
+                        <div>
+                            <dt className="text-sm text-muted-foreground">
+                                利用者管理番号
+                            </dt>
+                            <dd className="mt-1 font-medium">
+                                {resident.resident_code ?? '-'}
+                            </dd>
+                        </div>
                         <div>
                             <dt className="text-sm text-muted-foreground">
                                 居室

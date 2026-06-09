@@ -5,6 +5,7 @@ import { route } from 'ziggy-js';
 
 type Resident = {
     id: number;
+    resident_code: string | null;
     name: string;
     room_number: string | null;
 };
@@ -72,10 +73,7 @@ export default function CareRecordsCreate({ residents,recordTypes,selectedReside
                             <option value="">選択してください</option>
                             {residents.map((resident) => (
                                 <option key={resident.id} value={resident.id}>
-                                    {resident.name}
-                                    {resident.room_number
-                                        ? `（${resident.room_number}）`
-                                        : ''}
+                                    {resident.resident_code ?? '管理番号なし'} / {resident.name} / {resident.room_number}号室
                                 </option>
                             ))}
                         </select>

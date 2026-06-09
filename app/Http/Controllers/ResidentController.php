@@ -26,7 +26,8 @@ class ResidentController extends Controller
                 $query->where(function ($query) use ($search) {
                     $query->where('name', 'like', "%{$search}%")
                         ->orWhere('name_kana', 'like', "%{$search}%")
-                        ->orWhere('room_number', 'like', "%{$search}%");
+                        ->orWhere('room_number', 'like', "%{$search}%")
+                        ->orWhere('resident_code', 'like', "%{$search}%");
                 });
             })
             ->orderBy('room_number')
@@ -42,6 +43,7 @@ class ResidentController extends Controller
                 'status_label' => $resident->status->label(),
                 'birth_date' => $resident->birth_date?->format('Y-m-d'),
                 'gender' => $resident->gender,
+                'resident_code' => $resident->resident_code,
             ]);
 
         return Inertia::render('residents/index', [
@@ -91,25 +93,26 @@ class ResidentController extends Controller
                 'is_important' => $record->is_important,
             ]);
 
-        $handoverNotes = HandoverNote::query()
-            ->with(['creator'])
-            ->where('resident_id', $resident->id)
-            ->latest()
-            ->limit(10)
-            ->get()
-            ->map(fn (HandoverNote $note) => [
-                'id' => $note->id,
-                'creator' => [
-                    'id' => $note->creator->id,
-                    'name' => $note->creator->name,
-                ],
-                'title' => $note->title,
-                'content' => $note->content,
-                'importance' => $note->importance->value,
-                'importance_label' => $note->importance->label(),
-                'due_at' => $note->due_at?->format('Y-m-d H:i'),
-                'created_at' => $note->created_at->format('Y-m-d H:i'),
-            ]);
+      $handoverNotes = HandoverNote::query()
+        ->with(['creator'])
+        ->where('resident_id', $resident->id)
+        ->where('status', 'open')
+        ->latest()
+        ->limit(10)
+        ->get()
+        ->map(fn (HandoverNote $note) => [
+            'id' => $note->id,
+            'creator' => [
+                'id' => $note->creator->id,
+                'name' => $note->creator->name,
+            ],
+            'title' => $note->title,
+            'content' => $note->content,
+            'importance' => $note->importance->value,
+            'importance_label' => $note->importance->label(),
+            'due_at' => $note->due_at?->format('Y-m-d H:i'),
+            'created_at' => $note->created_at->format('Y-m-d H:i'),
+        ]);
 
         return Inertia::render('residents/show', [
             'returnUrl' => $request->query('return_url'),
@@ -124,6 +127,7 @@ class ResidentController extends Controller
                 'birth_date' => $resident->birth_date?->format('Y-m-d'),
                 'gender' => $resident->gender,
                 'note' => $resident->note,
+                'resident_code' => $resident->resident_code,
             ],
             'careRecords' => $careRecords,
             'handoverNotes' => $handoverNotes,
@@ -143,6 +147,7 @@ class ResidentController extends Controller
                 'birth_date' => $resident->birth_date?->format('Y-m-d'),
                 'gender' => $resident->gender,
                 'note' => $resident->note,
+                'resident_code' => $resident->resident_code,
             ],
             'statuses' => $this->statusOptions(),
         ]);

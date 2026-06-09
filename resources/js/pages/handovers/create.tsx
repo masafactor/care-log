@@ -5,6 +5,7 @@ import { route } from 'ziggy-js';
 
 type Resident = {
     id: number;
+    resident_code: string | null;
     name: string;
     room_number: string | null;
 };
@@ -63,15 +64,13 @@ export default function HandoversCreate({
                             }
                             className="mt-1 w-full rounded-md border px-3 py-2"
                         >
-                            <option value="">全体共有</option>
-                            {residents.map((resident) => (
-                                <option key={resident.id} value={resident.id}>
-                                    {resident.name}
-                                    {resident.room_number
-                                        ? `（${resident.room_number}）`
-                                        : ''}
-                                </option>
-                            ))}
+                            <option value="">全体申し送り</option>
+
+                                {residents.map((resident) => (
+                                    <option key={resident.id} value={resident.id}>
+                                        {resident.resident_code ?? '管理番号なし'} / {resident.name} / {resident.room_number}号室
+                                    </option>
+                                ))}
                         </select>
                         {errors.resident_id && (
                             <p className="mt-1 text-sm text-red-600">

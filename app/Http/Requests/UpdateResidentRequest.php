@@ -3,6 +3,7 @@
 namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
 
 class UpdateResidentRequest extends FormRequest
 {
@@ -22,6 +23,12 @@ class UpdateResidentRequest extends FormRequest
             'birth_date' => ['nullable', 'date'],
             'gender' => ['nullable', 'string', 'max:20'],
             'note' => ['nullable', 'string'],
+            'resident_code' => [
+                                    'nullable',
+                                    'string',
+                                    'max:50',
+                                    Rule::unique('residents', 'resident_code')->ignore($this->resident),
+                                ],
         ];
     }
 }

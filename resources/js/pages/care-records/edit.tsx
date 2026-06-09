@@ -7,6 +7,7 @@ type CareRecord = {
     id: number;
     resident: {
         id: number;
+        resident_code: string | null;
         name: string;
         room_number: string | null;
     };
@@ -54,12 +55,12 @@ export default function CareRecordsEdit({ record, recordTypes }: Props) {
                 </div>
 
                 <div className="mb-6 rounded-lg border bg-white p-4">
-                    <p className="text-sm text-muted-foreground">対象利用者</p>
                     <p className="mt-1 font-medium">
                         {record.resident.name}
-                        {record.resident.room_number
-                            ? `（${record.resident.room_number}）`
-                            : ''}
+                    </p>
+                    <p className="mt-1 text-sm text-muted-foreground">
+                        {record.resident.resident_code ?? '管理番号なし'} /{' '}
+                        {record.resident.room_number ?? '-'}号室
                     </p>
                 </div>
 
@@ -69,19 +70,17 @@ export default function CareRecordsEdit({ record, recordTypes }: Props) {
                             <label className="block text-sm font-medium">
                                 記録種別
                             </label>
-                            <select
-                                value={data.record_type}
-                                onChange={(e) =>
-                                    setData('record_type', e.target.value)
-                                }
-                                className="mt-1 w-full rounded-md border px-3 py-2"
-                            >
-                                {recordTypes.map((type) => (
-                                    <option key={type.value} value={type.value}>
-                                        {type.label}
-                                    </option>
-                                ))}
-                            </select>
+                                <select
+                                    value={data.record_type}
+                                    onChange={(e) => setData('record_type', e.target.value)}
+                                    className="mt-1 w-full rounded-md border px-3 py-2"
+                                >
+                                    {recordTypes.map((type) => (
+                                        <option key={type.value} value={type.value}>
+                                            {type.label}
+                                        </option>
+                                    ))}
+                                </select>
                             {errors.record_type && (
                                 <p className="mt-1 text-sm text-red-600">
                                     {errors.record_type}

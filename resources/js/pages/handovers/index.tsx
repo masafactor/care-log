@@ -11,6 +11,7 @@ type HandoverNote = {
     id: number;
     resident: {
         id: number;
+        resident_code: string | null;
         name: string;
         room_number: string | null;
     } | null;
@@ -229,10 +230,8 @@ export default function HandoversIndex({
                                                     <div className="font-medium">
                                                         {note.resident.name}
                                                     </div>
-                                                    <div className="text-xs text-muted-foreground">
-                                                        居室：
-                                                        {note.resident
-                                                            .room_number ?? '-'}
+                                                     <div className="text-xs text-muted-foreground">
+                                                        {note.resident.resident_code ?? '管理番号なし'} / {note.resident.room_number}号室
                                                     </div>
                                                 </div>
                                             ) : (

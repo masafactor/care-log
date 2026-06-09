@@ -13,6 +13,7 @@ type Resident = {
     birth_date: string | null;
     gender: string | null;
     note: string | null;
+    resident_code: string | null;
 };
 
 type StatusOption = {
@@ -35,6 +36,7 @@ export default function ResidentsEdit({ resident, statuses }: Props) {
         birth_date: resident.birth_date ?? '',
         gender: resident.gender ?? '',
         note: resident.note ?? '',
+        resident_code: resident.resident_code ?? '',
     });
 
     const submit = (e: FormEvent) => {
@@ -55,6 +57,23 @@ export default function ResidentsEdit({ resident, statuses }: Props) {
                 </div>
 
                 <form onSubmit={submit} className="max-w-2xl space-y-5">
+                    <div>
+                        <label className="block text-sm font-medium">
+                            利用者管理番号
+                        </label>
+                        <input
+                            type="text"
+                            value={data.resident_code}
+                            onChange={(e) => setData('resident_code', e.target.value)}
+                            className="mt-1 w-full rounded-md border px-3 py-2"
+                            placeholder="例：R-000001"
+                        />
+                        {errors.resident_code && (
+                            <p className="mt-1 text-sm text-red-600">
+                                {errors.resident_code}
+                            </p>
+                        )}
+                    </div>
                     <div>
                         <label className="block text-sm font-medium">
                             氏名

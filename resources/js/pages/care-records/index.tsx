@@ -11,6 +11,7 @@ type CareRecord = {
     id: number;
     resident: {
         id: number;
+        resident_code: string | null;
         name: string;
         room_number: string | null;
     };
@@ -202,8 +203,13 @@ export default function CareRecordsIndex({
                                             </div>
                                         </td>
 
-                                        <td className="px-4 py-3">
-                                            {record.staff.name}
+                                       <td className="px-4 py-3">
+                                            <div className="font-medium">
+                                                {record.resident.name}
+                                            </div>
+                                            <div className="text-xs text-muted-foreground">
+                                                {record.resident.resident_code ?? '管理番号なし'} / {record.resident.room_number}号室
+                                            </div>
                                         </td>
 
                                         <td className="px-4 py-3">

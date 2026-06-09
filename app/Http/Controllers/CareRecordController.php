@@ -46,6 +46,7 @@ class CareRecordController extends Controller
                 'id' => $record->id,
                 'resident' => [
                     'id' => $record->resident->id,
+                    'resident_code' => $record->resident->resident_code,
                     'name' => $record->resident->name,
                     'room_number' => $record->resident->room_number,
                 ],
@@ -80,6 +81,7 @@ class CareRecordController extends Controller
                 ->get(['id', 'name', 'room_number'])
                 ->map(fn (Resident $resident) => [
                     'id' => $resident->id,
+                    'resident_code' => $resident->resident_code,
                     'name' => $resident->name,
                     'room_number' => $resident->room_number,
                 ]),
@@ -173,6 +175,7 @@ class CareRecordController extends Controller
                     'id' => $careRecord->resident->id,
                     'name' => $careRecord->resident->name,
                     'room_number' => $careRecord->resident->room_number,
+                    'resident_code' => $careRecord->resident->resident_code,
                 ],
                 'record_type' => $careRecord->record_type->value,
                 'content' => $careRecord->content,

@@ -9,6 +9,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 class Resident extends Model
 {
     protected $fillable = [
+        'resident_code',
         'name',
         'name_kana',
         'room_number',

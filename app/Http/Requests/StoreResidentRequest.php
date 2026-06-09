@@ -22,6 +22,7 @@ class StoreResidentRequest extends FormRequest
             'birth_date' => ['nullable', 'date'],
             'gender' => ['nullable', 'string', 'max:20'],
             'note' => ['nullable', 'string'],
+            'resident_code' => ['nullable', 'string', 'max:50', 'unique:residents,resident_code'],
         ];
     }
 }

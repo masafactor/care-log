@@ -15,6 +15,7 @@ type Resident = {
     status: string;
     status_label: string;
     birth_date: string | null;
+    resident_code: string | null;
 };
 
 type Props = {
@@ -65,7 +66,7 @@ export default function ResidentsIndex({ residents, filters }: Props) {
                             value={search}
                             onChange={(e) => setSearch(e.target.value)}
                             className="w-full max-w-md rounded-md border px-3 py-2 text-sm"
-                            placeholder="名前・ふりがな・居室番号で検索"
+                            placeholder="管理番号・名前・ふりがな・居室番号で検索"
                         />
 
                         <button
@@ -102,6 +103,7 @@ export default function ResidentsIndex({ residents, filters }: Props) {
                     <table className="w-full text-left text-sm">
                         <thead className="border-b bg-gray-50">
                             <tr>
+                                <th className="px-4 py-3">管理番号</th>
                                 <th className="px-4 py-3">氏名</th>
                                 <th className="px-4 py-3">居室</th>
                                 <th className="px-4 py-3">介護度</th>
@@ -123,6 +125,9 @@ export default function ResidentsIndex({ residents, filters }: Props) {
                             ) : (
                                 residents.data.map((resident) => (
                                     <tr key={resident.id} className="border-b">
+                                        <td className="px-4 py-3">
+                                            {resident.resident_code ?? '-'}
+                                        </td>
                                         <td className="px-4 py-3">
                                             <div className="font-medium">
                                                 {resident.name}

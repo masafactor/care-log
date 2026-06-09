@@ -55,6 +55,7 @@ class HandoverNoteController extends Controller
                 'resident' => $note->resident
                     ? [
                         'id' => $note->resident->id,
+                        'resident_code' => $note->resident->resident_code,
                         'name' => $note->resident->name,
                         'room_number' => $note->resident->room_number,
                     ]
@@ -102,6 +103,7 @@ class HandoverNoteController extends Controller
                 ->get(['id', 'name', 'room_number'])
                 ->map(fn (Resident $resident) => [
                     'id' => $resident->id,
+                    'resident_code' => $resident->resident_code,
                     'name' => $resident->name,
                     'room_number' => $resident->room_number,
                 ]),
