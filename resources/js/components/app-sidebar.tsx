@@ -39,6 +39,11 @@ const mainNavItems: NavItem[] = [
         href: '/handovers',
         icon: ClipboardList,
     },
+    {
+        title: '職員管理',
+        href: '/admin/users',
+    }
+    
 ];
 
 const footerNavItems: NavItem[] = [
