@@ -48,6 +48,13 @@ export default function AdminUsersEdit({ user, roles }: Props) {
                     </p>
                 </div>
 
+                <div className="rounded-lg border bg-yellow-50 p-4 text-sm">
+                    <p className="font-medium">管理者権限の変更に注意</p>
+                    <p className="mt-1 text-muted-foreground">
+                        自分自身や最後の有効な管理者を無効化したり、管理者権限を外すことはできません。
+                    </p>
+                </div>
+
                 <form onSubmit={submit} className="max-w-2xl space-y-5">
                     <div>
                         <label className="block text-sm font-medium">

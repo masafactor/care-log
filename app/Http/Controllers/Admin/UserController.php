@@ -75,6 +75,41 @@ class UserController extends Controller
     public function update(UpdateUserRequest $request, User $user): RedirectResponse
     {
         $data = $request->validated();
+        $currentUser = $request->user();
+
+        $adminCount = User::query()
+            ->where('role', UserRole::Admin->value)
+            ->where('is_active', true)
+            ->count();
+
+        $isTargetActiveAdmin = $user->isAdmin() && $user->is_active;
+
+        $willBeAdmin = $data['role'] === UserRole::Admin->value;
+        $willBeActive = (bool) $data['is_active'];
+
+        if ($currentUser->id === $user->id && ! $willBeActive) {
+            return back()->withErrors([
+                'is_active' => '自分自身を無効化することはできません。',
+            ]);
+        }
+
+        if ($currentUser->id === $user->id && ! $willBeAdmin) {
+            return back()->withErrors([
+                'role' => '自分自身の管理者権限を外すことはできません。',
+            ]);
+        }
+
+        if ($isTargetActiveAdmin && $adminCount <= 1 && ! $willBeActive) {
+            return back()->withErrors([
+                'is_active' => '最後の有効な管理者を無効化することはできません。',
+            ]);
+        }
+
+        if ($isTargetActiveAdmin && $adminCount <= 1 && ! $willBeAdmin) {
+            return back()->withErrors([
+                'role' => '最後の有効な管理者の権限を変更することはできません。',
+            ]);
+        }
 
         $user->fill([
             'name' => $data['name'],
@@ -85,11 +120,6 @@ class UserController extends Controller
 
         if (! empty($data['password'])) {
             $user->password = Hash::make($data['password']);
-        }
-        if ($request->user()->id === $user->id && ! $data['is_active']) {
-            return back()->withErrors([
-                'is_active' => '自分自身を無効化することはできません。',
-            ]);
         }
 
         $user->save();
