@@ -10,20 +10,18 @@ use App\Http\Controllers\Admin\UserController;
 
 Route::inertia('/', 'welcome')->name('home');
 
-Route::middleware(['auth', 'verified'])->group(function () {
-    Route::get('dashboard', DashboardController::class)->name('dashboard');
+Route::middleware(['auth', 'verified', 'active'])->group(function () {
+    Route::get('dashboard', DashboardController::class)
+        ->name('dashboard');
+
     Route::resource('residents', ResidentController::class)
         ->except(['destroy']);
-    Route::resource('handovers', HandoverNoteController::class)
-    ->only(['index', 'create', 'store', 'show']);
-
-    Route::post('handovers/{handover}/read', [HandoverNoteController::class, 'markAsRead'])
-        ->name('handovers.read');
 
     Route::resource('care-records', CareRecordController::class)
         ->only(['index', 'create', 'store', 'show', 'edit', 'update']);
+
     Route::resource('handovers', HandoverNoteController::class)
-    ->only(['index', 'create', 'store', 'show', 'edit', 'update']);
+        ->only(['index', 'create', 'store', 'show', 'edit', 'update']);
 
     Route::post('handovers/{handover}/read', [HandoverNoteController::class, 'markAsRead'])
         ->name('handovers.read');
@@ -31,7 +29,6 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::post('handovers/{handover}/complete', [HandoverNoteController::class, 'complete'])
         ->name('handovers.complete');
 });
-
 
 Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('dashboard', DashboardController::class)->name('dashboard');
@@ -52,7 +49,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
         ->name('handovers.complete');
 });
 
-Route::middleware(['auth', 'verified', 'role:admin'])
+Route::middleware(['auth', 'verified', 'role:admin', 'active'])
     ->prefix('admin')
     ->name('admin.')
     ->group(function () {

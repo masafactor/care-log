@@ -1,5 +1,3 @@
-import { Link } from '@inertiajs/react';
-import { BookOpen, FolderGit2,  } from 'lucide-react';
 import AppLogo from '@/components/app-logo';
 import { NavFooter } from '@/components/nav-footer';
 import { NavMain } from '@/components/nav-main';
@@ -15,36 +13,29 @@ import {
 } from '@/components/ui/sidebar';
 import { dashboard } from '@/routes';
 import type { NavItem } from '@/types';
-import { Users ,FileText, LayoutGrid,ClipboardList} from 'lucide-react';
+import { Link, usePage } from '@inertiajs/react';
+import {
+    BookOpen,
+    ClipboardList,
+    FileText,
+    FolderGit2,
+    LayoutGrid,
+    Users,
+} from 'lucide-react';
+import { route } from 'ziggy-js';
 
-const mainNavItems: NavItem[] = [
-    {
-        title: 'Dashboard',
-        href: dashboard(),
-        icon: LayoutGrid,
-    },
-        {
-        title: '利用者管理',
-        href: '/residents',
-        icon: Users,
-    },
-
-    {
-        title: '介護記録',
-        href: '/care-records',
-        icon: FileText,
-    },
-    {
-        title: '申し送り',
-        href: '/handovers',
-        icon: ClipboardList,
-    },
-    {
-        title: '職員管理',
-        href: '/admin/users',
-    }
-    
-];
+type PageProps = {
+    auth: {
+        user: {
+            id: number;
+            name: string;
+            email: string;
+            role: string;
+            role_label?: string;
+            is_active: boolean;
+        } | null;
+    };
+};
 
 const footerNavItems: NavItem[] = [
     {
@@ -60,6 +51,41 @@ const footerNavItems: NavItem[] = [
 ];
 
 export function AppSidebar() {
+    const { auth } = usePage<PageProps>().props;
+    const isAdmin = auth.user?.role === 'admin';
+
+    const mainNavItems: NavItem[] = [
+        {
+            title: 'Dashboard',
+            href: dashboard(),
+            icon: LayoutGrid,
+        },
+        {
+            title: '利用者管理',
+            href: '/residents',
+            icon: Users,
+        },
+        {
+            title: '介護記録',
+            href: '/care-records',
+            icon: FileText,
+        },
+        {
+            title: '申し送り',
+            href: '/handovers',
+            icon: ClipboardList,
+        },
+        ...(isAdmin
+            ? [
+                  {
+                      title: '職員管理',
+                      href: route('admin.users.index'),
+                      icon: Users,
+                  },
+              ]
+            : []),
+    ];
+
     return (
         <Sidebar collapsible="icon" variant="inset">
             <SidebarHeader>
