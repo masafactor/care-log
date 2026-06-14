@@ -8,15 +8,32 @@ use App\Http\Requests\Admin\StoreUserRequest;
 use App\Http\Requests\Admin\UpdateUserRequest;
 use App\Models\User;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Inertia\Inertia;
 use Inertia\Response;
 
 class UserController extends Controller
 {
-    public function index(): Response
+    public function index(Request $request): Response
     {
+        $search = $request->query('search');
+        $role = $request->query('role');
+        $active = $request->query('active');
+
         $users = User::query()
+            ->when($search, function ($query, $search) {
+                $query->where(function ($query) use ($search) {
+                    $query->where('name', 'like', "%{$search}%")
+                        ->orWhere('email', 'like', "%{$search}%");
+                });
+            })
+            ->when($role, function ($query, $role) {
+                $query->where('role', $role);
+            })
+            ->when($active !== null && $active !== '', function ($query) use ($active) {
+                $query->where('is_active', $active === '1');
+            })
             ->orderBy('id')
             ->get()
             ->map(fn (User $user) => [
@@ -31,6 +48,12 @@ class UserController extends Controller
 
         return Inertia::render('admin/users/index', [
             'users' => $users,
+            'roles' => $this->roleOptions(),
+            'filters' => [
+                'search' => $search,
+                'role' => $role,
+                'active' => $active,
+            ],
         ]);
     }
 

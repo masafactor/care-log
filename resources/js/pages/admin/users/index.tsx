@@ -1,6 +1,7 @@
 import AppLayout from '@/layouts/app-layout';
-import { Head, Link } from '@inertiajs/react';
 import { route } from 'ziggy-js';
+import { Head, Link, router } from '@inertiajs/react';
+import { FormEvent, useState } from 'react';
 
 type User = {
     id: number;
@@ -12,11 +13,50 @@ type User = {
     created_at: string;
 };
 
-type Props = {
-    users: User[];
+type RoleOption = {
+    value: string;
+    label: string;
 };
 
-export default function AdminUsersIndex({ users }: Props) {
+type Filters = {
+    search?: string | null;
+    role?: string | null;
+    active?: string | null;
+};
+
+type Props = {
+    users: User[];
+    roles: RoleOption[];
+    filters: Filters;
+};
+
+export default function AdminUsersIndex({ users, roles, filters }: Props) {
+    
+    const [search, setSearch] = useState(filters.search ?? '');
+    const [role, setRole] = useState(filters.role ?? '');
+    const [active, setActive] = useState(filters.active ?? '');
+
+    const submit = (e: FormEvent) => {
+        e.preventDefault();
+
+        router.get(
+            route('admin.users.index'),
+            {
+                search,
+                role,
+                active,
+            },
+            {
+                preserveState: true,
+                preserveScroll: true,
+            },
+        );
+    };
+
+    const clearFilters = () => {
+        router.get(route('admin.users.index'));
+    };
+    
     return (
         <AppLayout>
             <Head title="職員ユーザー管理" />
@@ -39,6 +79,68 @@ export default function AdminUsersIndex({ users }: Props) {
                         職員を追加
                     </Link>
                 </div>
+
+                <form
+                    onSubmit={submit}
+                    className="grid gap-3 rounded-lg border bg-white p-4 md:grid-cols-4"
+                >
+                    <div>
+                        <label className="block text-sm font-medium">検索</label>
+                        <input
+                            type="text"
+                            value={search}
+                            onChange={(e) => setSearch(e.target.value)}
+                            className="mt-1 w-full rounded-md border px-3 py-2"
+                            placeholder="氏名・メールアドレス"
+                        />
+                    </div>
+
+                    <div>
+                        <label className="block text-sm font-medium">権限</label>
+                        <select
+                            value={role}
+                            onChange={(e) => setRole(e.target.value)}
+                            className="mt-1 w-full rounded-md border px-3 py-2"
+                        >
+                            <option value="">すべて</option>
+                            {roles.map((role) => (
+                                <option key={role.value} value={role.value}>
+                                    {role.label}
+                                </option>
+                            ))}
+                        </select>
+                    </div>
+
+                    <div>
+                        <label className="block text-sm font-medium">状態</label>
+                        <select
+                            value={active}
+                            onChange={(e) => setActive(e.target.value)}
+                            className="mt-1 w-full rounded-md border px-3 py-2"
+                        >
+                            <option value="">すべて</option>
+                            <option value="1">有効</option>
+                            <option value="0">無効</option>
+                        </select>
+                    </div>
+
+                    <div className="flex items-end gap-2">
+                        <button
+                            type="submit"
+                            className="rounded-md bg-black px-4 py-2 text-sm font-medium text-white"
+                        >
+                            検索
+                        </button>
+
+                        <button
+                            type="button"
+                            onClick={clearFilters}
+                            className="rounded-md border px-4 py-2 text-sm"
+                        >
+                            クリア
+                        </button>
+                    </div>
+                </form>
 
                 <div className="overflow-hidden rounded-lg border bg-white">
                     <table className="w-full text-left text-sm">
