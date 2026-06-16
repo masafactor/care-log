@@ -82,6 +82,11 @@ export function AppSidebar() {
                       href: route('admin.users.index'),
                       icon: Users,
                   },
+                  {
+                        title: '操作ログ',
+                        href: route('admin.audit-logs.index'),
+                        icon: FileText,
+                    },
               ]
             : []),
     ];

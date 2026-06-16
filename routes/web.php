@@ -7,6 +7,7 @@ use App\Http\Controllers\CareRecordController;
 use App\Http\Controllers\HandoverNoteController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\Admin\UserController;
+use App\Http\Controllers\Admin\AuditLogController;
 
 Route::inertia('/', 'welcome')->name('home');
 
@@ -59,6 +60,9 @@ Route::middleware(['auth', 'verified', 'role:admin', 'active'])
 
         Route::resource('users', UserController::class)
             ->only(['index', 'create', 'store', 'edit', 'update']);
+
+        Route::resource('audit-logs', AuditLogController::class)
+            ->only(['index']);
     });
 
 require __DIR__.'/settings.php';

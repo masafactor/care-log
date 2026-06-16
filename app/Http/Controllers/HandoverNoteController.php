@@ -16,6 +16,7 @@ use App\Application\Handovers\UseCases\CompleteHandoverNoteUseCase;
 use App\Application\Handovers\UseCases\UpdateHandoverNoteUseCase;
 use App\Http\Requests\UpdateHandoverNoteRequest;
 use App\Enums\HandoverStatus;
+use App\Application\AuditLogs\UseCases\CreateAuditLogUseCase;
 
 class HandoverNoteController extends Controller
 {
@@ -228,14 +229,24 @@ class HandoverNoteController extends Controller
             ->route('handovers.show', $handover)
             ->with('success', '申し送りを更新しました。');
     }
-
     public function complete(
-        HandoverNote $handover,
         Request $request,
-        CompleteHandoverNoteUseCase $useCase
-    ): RedirectResponse {
+        HandoverNote $handover,
+        CompleteHandoverNoteUseCase $useCase,
+        CreateAuditLogUseCase $auditLogUseCase
+    ) {
         $useCase->handle($handover, $request->user());
 
-        return back()->with('success', '申し送りを完了にしました。');
+        $auditLogUseCase->handle(
+            request: $request,
+            action: 'handover.completed',
+            targetType: HandoverNote::class,
+            targetId: $handover->id,
+            description: "申し送り「{$handover->title}」を完了しました。",
+        );
+
+        return redirect()
+            ->route('handovers.show', $handover)
+            ->with('success', '申し送りを完了しました。');
     }
 }

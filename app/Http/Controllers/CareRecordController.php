@@ -13,6 +13,7 @@ use Inertia\Inertia;
 use Inertia\Response;
 use App\Application\CareRecords\UseCases\UpdateCareRecordUseCase;
 use App\Http\Requests\UpdateCareRecordRequest;
+use App\Application\AuditLogs\UseCases\CreateAuditLogUseCase;
 
 class CareRecordController extends Controller
 {
@@ -92,13 +93,22 @@ class CareRecordController extends Controller
 
     public function store(
         StoreCareRecordRequest $request,
-        CreateCareRecordUseCase $useCase
-    ): RedirectResponse {
-        $record = $useCase->handle($request->validated(), $request->user());
+        CreateCareRecordUseCase $useCase,
+        CreateAuditLogUseCase $auditLogUseCase
+    ) {
+        $careRecord = $useCase->handle($request->validated(), $request->user());
+
+        $auditLogUseCase->handle(
+            request: $request,
+            action: 'care_record.created',
+            targetType: CareRecord::class,
+            targetId: $careRecord->id,
+            description: '介護記録を登録しました。',
+        );
 
         return redirect()
-            ->route('care-records.show', $record)
-            ->with('success', '介護記録を作成しました。');
+            ->route('care-records.show', $careRecord)
+            ->with('success', '介護記録を登録しました。');
     }
 
     public function show(Request $request, CareRecord $careRecord): Response
