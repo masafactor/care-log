@@ -1,6 +1,7 @@
 import AppLayout from '@/layouts/app-layout';
-import { Head } from '@inertiajs/react';
-
+import { Head, router } from '@inertiajs/react';
+import { FormEvent, useState } from 'react';
+import { route } from 'ziggy-js';
 type AuditLog = {
     id: number;
     user: {
@@ -16,11 +17,52 @@ type AuditLog = {
     created_at: string;
 };
 
-type Props = {
-    logs: AuditLog[];
+type Filters = {
+    search?: string | null;
+    action?: string | null;
+    date_from?: string | null;
+    date_to?: string | null;
 };
 
-export default function AdminAuditLogsIndex({ logs }: Props) {
+type Props = {
+    logs: AuditLog[];
+    actions: string[];
+    filters: Filters;
+};
+
+
+export default function AdminAuditLogsIndex({
+    logs,
+    actions,
+    filters,
+}: Props) {
+
+    const [search, setSearch] = useState(filters.search ?? '');
+const [action, setAction] = useState(filters.action ?? '');
+const [dateFrom, setDateFrom] = useState(filters.date_from ?? '');
+const [dateTo, setDateTo] = useState(filters.date_to ?? '');
+
+const submit = (e: FormEvent) => {
+    e.preventDefault();
+
+    router.get(
+        route('admin.audit-logs.index'),
+        {
+            search,
+            action,
+            date_from: dateFrom,
+            date_to: dateTo,
+        },
+        {
+            preserveState: true,
+            preserveScroll: true,
+        },
+    );
+};
+
+const clearFilters = () => {
+    router.get(route('admin.audit-logs.index'));
+};
     return (
         <AppLayout>
             <Head title="操作ログ" />
@@ -32,6 +74,83 @@ export default function AdminAuditLogsIndex({ logs }: Props) {
                         職員の操作履歴を確認します。
                     </p>
                 </div>
+
+                <form
+                    onSubmit={submit}
+                    className="grid gap-3 rounded-lg border bg-white p-4 md:grid-cols-5"
+                >
+                    <div className="md:col-span-2">
+                        <label className="block text-sm font-medium">
+                            検索
+                        </label>
+                        <input
+                            type="text"
+                            value={search}
+                            onChange={(e) => setSearch(e.target.value)}
+                            className="mt-1 w-full rounded-md border px-3 py-2"
+                            placeholder="職員名・メール・操作内容・IP"
+                        />
+                    </div>
+
+                    <div>
+                        <label className="block text-sm font-medium">
+                            操作種別
+                        </label>
+                        <select
+                            value={action}
+                            onChange={(e) => setAction(e.target.value)}
+                            className="mt-1 w-full rounded-md border px-3 py-2"
+                        >
+                            <option value="">すべて</option>
+                            {actions.map((action) => (
+                                <option key={action} value={action}>
+                                    {action}
+                                </option>
+                            ))}
+                        </select>
+                    </div>
+
+                    <div>
+                        <label className="block text-sm font-medium">
+                            開始日
+                        </label>
+                        <input
+                            type="date"
+                            value={dateFrom}
+                            onChange={(e) => setDateFrom(e.target.value)}
+                            className="mt-1 w-full rounded-md border px-3 py-2"
+                        />
+                    </div>
+
+                    <div>
+                        <label className="block text-sm font-medium">
+                            終了日
+                        </label>
+                        <input
+                            type="date"
+                            value={dateTo}
+                            onChange={(e) => setDateTo(e.target.value)}
+                            className="mt-1 w-full rounded-md border px-3 py-2"
+                        />
+                    </div>
+
+                    <div className="flex items-end gap-2 md:col-span-5">
+                        <button
+                            type="submit"
+                            className="rounded-md bg-black px-4 py-2 text-sm font-medium text-white"
+                        >
+                            検索
+                        </button>
+
+                        <button
+                            type="button"
+                            onClick={clearFilters}
+                            className="rounded-md border px-4 py-2 text-sm"
+                        >
+                            クリア
+                        </button>
+                    </div>
+                </form>
 
                 <div className="overflow-hidden rounded-lg border bg-white">
                     <table className="w-full text-left text-sm">
