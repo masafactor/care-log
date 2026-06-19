@@ -8,6 +8,7 @@ use App\Http\Controllers\HandoverNoteController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\Admin\AuditLogController;
+use App\Http\Controllers\FamilyNoteController;
 
 Route::inertia('/', 'welcome')->name('home');
 
@@ -29,6 +30,8 @@ Route::middleware(['auth', 'verified', 'active'])->group(function () {
 
     Route::post('handovers/{handover}/complete', [HandoverNoteController::class, 'complete'])
         ->name('handovers.complete');
+    Route::resource('family-notes', FamilyNoteController::class)
+    ->except(['destroy']);
 });
 
 Route::middleware(['auth', 'verified'])->group(function () {
