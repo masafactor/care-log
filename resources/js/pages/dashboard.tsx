@@ -2,7 +2,6 @@ import AppLayout from '@/layouts/app-layout';
 import { Head, Link } from '@inertiajs/react';
 import { route } from 'ziggy-js';
 
-
 type Stats = {
     todayCareRecordCount: number;
     unreadHandoverCount: number;
@@ -44,12 +43,37 @@ type HandoverNote = {
     created_at: string;
 };
 
+type RecentFamilyNote = {
+    id: number;
+    resident: {
+        id: number;
+        name: string;
+        resident_code: string | null;
+        room_number: string | null;
+    };
+    staff: {
+        id: number;
+        name: string;
+    };
+    category_label: string;
+    title: string;
+    note_date: string;
+    status_label: string;
+};
+
 type Props = {
     stats: Stats;
     todayImportantCareRecords: CareRecord[];
     recentCareRecords: CareRecord[];
     unreadHandovers: HandoverNote[];
     dueSoonHandovers: HandoverNote[];
+    todayCareRecordCount: number;
+    unreadHandoverCount: number;
+    importantHandoverCount: number;
+    todayFamilyNoteCount: number;
+    shareableFamilyNoteCount: number;
+    recentFamilyNotes: RecentFamilyNote[];
+    
 };
 
 export default function Dashboard({
@@ -58,12 +82,35 @@ export default function Dashboard({
     recentCareRecords,
     unreadHandovers,
     dueSoonHandovers,
+    todayCareRecordCount,
+    unreadHandoverCount,
+    importantHandoverCount,
+    todayFamilyNoteCount,
+    shareableFamilyNoteCount,
+    recentFamilyNotes,
 }: Props) {
     return (
         <AppLayout>
             <Head title="Dashboard" />
 
             <div className="space-y-6 p-6">
+                <div className="rounded-lg border bg-white p-4">
+                    <p className="text-sm text-muted-foreground">
+                        本日の家族向けメモ
+                    </p>
+                    <p className="mt-2 text-2xl font-bold">
+                        {todayFamilyNoteCount}
+                    </p>
+                </div>
+
+                <div className="rounded-lg border bg-white p-4">
+                    <p className="text-sm text-muted-foreground">
+                        共有可能メモ
+                    </p>
+                    <p className="mt-2 text-2xl font-bold">
+                        {shareableFamilyNoteCount}
+                    </p>
+                </div>
                 <div>
                     <h1 className="text-2xl font-bold">Dashboard</h1>
                     <p className="mt-1 text-sm text-muted-foreground">
@@ -137,6 +184,16 @@ export default function Dashboard({
                         <p className="font-semibold">利用者を確認</p>
                         <p className="mt-1 text-sm text-muted-foreground">
                             利用者情報・記録・申し送りを確認します。
+                        </p>
+                    </Link>
+
+                     <Link
+                        href={route('family-notes.create')}
+                        className="rounded-lg border bg-white p-5 hover:bg-gray-50"
+                    >
+                        <p className="font-semibold">家族向けメモを作成</p>
+                        <p className="mt-1 text-sm text-muted-foreground">
+                            ご家族へ伝える近況や様子を記録します。
                         </p>
                     </Link>
                 </div>
@@ -373,7 +430,68 @@ export default function Dashboard({
                                 ))
                             )}
                         </div>
+                        
                     </section>
+
+                                        <section className="rounded-lg border bg-white">
+                        <div className="flex items-center justify-between border-b p-4">
+                            <div>
+                                <h2 className="font-semibold">
+                                    最近の家族向けメモ
+                                </h2>
+                                <p className="mt-1 text-sm text-muted-foreground">
+                                    ご家族へ共有する近況メモです。
+                                </p>
+                            </div>
+
+                            <Link
+                                href={route('family-notes.index')}
+                                className="text-sm underline"
+                            >
+                                一覧へ
+                            </Link>
+                        </div>
+
+                        <div className="divide-y">
+                            {(recentFamilyNotes ?? []).length === 0 ? (
+                                <p className="p-4 text-sm text-muted-foreground">
+                                    家族向けメモはまだありません。
+                                </p>
+                            ) : (
+                                (recentFamilyNotes ?? []).map((note) =>(
+                                    <Link
+                                        key={note.id}
+                                        href={route('family-notes.show', note.id)}
+                                        className="block p-4 hover:bg-gray-50"
+                                    >
+                                        <div className="flex items-start justify-between gap-4">
+                                            <div>
+                                                <p className="font-medium">
+                                                    {note.title}
+                                                </p>
+                                                <p className="mt-1 text-xs text-muted-foreground">
+                                                    {note.resident.resident_code ?? '管理番号なし'} /{' '}
+                                                    {note.resident.name} /{' '}
+                                                    {note.resident.room_number ?? '-'}号室
+                                                </p>
+                                                <p className="mt-2 text-xs text-muted-foreground">
+                                                    {note.category_label} / 記録者：{note.staff.name}
+                                                </p>
+                                            </div>
+
+                                            <div className="shrink-0 text-right text-xs text-muted-foreground">
+                                                <p>{note.note_date}</p>
+                                                <p className="mt-1 rounded-full border px-2 py-0.5">
+                                                    {note.status_label}
+                                                </p>
+                                            </div>
+                                        </div>
+                                    </Link>
+                                ))
+                            )}
+                        </div>
+                    </section>
+                    
                 </div>
             </div>
         </AppLayout>

@@ -12,7 +12,7 @@ use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Inertia\Response;
-
+use App\Application\AuditLogs\UseCases\CreateAuditLogUseCase;
 class FamilyNoteController extends Controller
 {
     public function index(Request $request): Response
@@ -84,12 +84,22 @@ class FamilyNoteController extends Controller
         ]);
     }
 
-    public function store(StoreFamilyNoteRequest $request): RedirectResponse
-    {
+    public function store(
+        StoreFamilyNoteRequest $request,
+        CreateAuditLogUseCase $auditLogUseCase
+    ): RedirectResponse {
         $familyNote = FamilyNote::query()->create([
             ...$request->validated(),
             'staff_id' => $request->user()->id,
         ]);
+
+        $auditLogUseCase->handle(
+            request: $request,
+            action: 'family_note.created',
+            targetType: FamilyNote::class,
+            targetId: $familyNote->id,
+            description: "家族向けメモ「{$familyNote->title}」を作成しました。",
+        );
 
         return redirect()
             ->route('family-notes.show', $familyNote)
@@ -146,9 +156,18 @@ class FamilyNoteController extends Controller
 
     public function update(
         UpdateFamilyNoteRequest $request,
-        FamilyNote $familyNote
+        FamilyNote $familyNote,
+        CreateAuditLogUseCase $auditLogUseCase
     ): RedirectResponse {
         $familyNote->update($request->validated());
+
+        $auditLogUseCase->handle(
+            request: $request,
+            action: 'family_note.updated',
+            targetType: FamilyNote::class,
+            targetId: $familyNote->id,
+            description: "家族向けメモ「{$familyNote->title}」を更新しました。",
+        );
 
         return redirect()
             ->route('family-notes.show', $familyNote)

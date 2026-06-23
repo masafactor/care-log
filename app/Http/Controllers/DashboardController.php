@@ -9,6 +9,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
 use Inertia\Inertia;
 use Inertia\Response;
+use App\Models\FamilyNote;
 
 class DashboardController extends Controller
 {
@@ -19,18 +20,36 @@ class DashboardController extends Controller
         $todayStart = Carbon::today();
         $todayEnd = Carbon::today()->endOfDay();
 
-        $todayCareRecordCount = CareRecord::query()
-            ->whereBetween('recorded_at', [$todayStart, $todayEnd])
-            ->where('is_voided', false)
-            ->count();
+        $todayFamilyNoteCount = FamilyNote::query()
+    ->whereDate('note_date', today())
+    ->count();
 
-        $unreadHandoverCount = HandoverNote::query()
-            ->where('status', HandoverStatus::Open->value)
-            ->whereDoesntHave('reads', function ($query) use ($user) {
-                $query->where('user_id', $user->id);
-            })
-            ->count();
+$shareableFamilyNoteCount = FamilyNote::query()
+    ->where('status', 'shareable')
+    ->count();
 
+$recentFamilyNotes = FamilyNote::query()
+    ->with(['resident', 'staff'])
+    ->latest('note_date')
+    ->limit(5)
+    ->get()
+    ->map(fn (FamilyNote $note) => [
+        'id' => $note->id,
+        'resident' => [
+            'id' => $note->resident->id,
+            'name' => $note->resident->name,
+            'resident_code' => $note->resident->resident_code,
+            'room_number' => $note->resident->room_number,
+        ],
+        'staff' => [
+            'id' => $note->staff->id,
+            'name' => $note->staff->name,
+        ],
+        'category_label' => $note->category->label(),
+        'title' => $note->title,
+        'note_date' => $note->note_date->format('Y-m-d'),
+        'status_label' => $note->status->label(),
+    ]);
         $importantHandoverCount = HandoverNote::query()
             ->where('status', HandoverStatus::Open->value)
             ->whereIn('importance', ['important', 'urgent'])
@@ -150,9 +169,9 @@ class DashboardController extends Controller
 
         return Inertia::render('dashboard', [
             'stats' => [
-                'todayCareRecordCount' => $todayCareRecordCount,
-                'unreadHandoverCount' => $unreadHandoverCount,
-                'importantHandoverCount' => $importantHandoverCount,
+            'todayFamilyNoteCount' => $todayFamilyNoteCount,
+            'shareableFamilyNoteCount' => $shareableFamilyNoteCount,
+            'recentFamilyNotes' => $recentFamilyNotes,'importantHandoverCount' => $importantHandoverCount,
             ],
             'todayImportantCareRecords' => $todayImportantCareRecords,
             'recentCareRecords' => $recentCareRecords,

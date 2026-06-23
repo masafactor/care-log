@@ -1,5 +1,6 @@
 import AppLayout from '@/layouts/app-layout';
 import { Head, Link } from '@inertiajs/react';
+import { useState } from 'react';
 import { route } from 'ziggy-js';
 
 type FamilyNote = {
@@ -30,6 +31,25 @@ type Props = {
 };
 
 export default function FamilyNotesShow({ familyNote }: Props) {
+    const [copied, setCopied] = useState(false);
+
+    const shareText = [
+        `【${familyNote.note_date}】${familyNote.category_label}`,
+        '',
+        familyNote.title,
+        '',
+        familyNote.content,
+    ].join('\n');
+
+    const copyShareText = async () => {
+        await navigator.clipboard.writeText(shareText);
+        setCopied(true);
+
+        setTimeout(() => {
+            setCopied(false);
+        }, 2000);
+    };
+
     return (
         <AppLayout>
             <Head title="家族向けメモ詳細" />
@@ -141,6 +161,31 @@ export default function FamilyNotesShow({ familyNote }: Props) {
                         </p>
                         <div className="mt-2 whitespace-pre-wrap rounded-md border bg-gray-50 p-4 leading-7">
                             {familyNote.content}
+                        </div>
+                    </div>
+
+                    <div className="rounded-lg border bg-white p-6">
+                        <div className="flex items-center justify-between gap-4">
+                            <div>
+                                <h2 className="text-lg font-bold">
+                                    家族向け共有文面
+                                </h2>
+                                <p className="mt-1 text-sm text-muted-foreground">
+                                    面会時・電話連絡・共有用メモとして使える文面です。
+                                </p>
+                            </div>
+
+                            <button
+                                type="button"
+                                onClick={copyShareText}
+                                className="rounded-md border px-4 py-2 text-sm"
+                            >
+                                {copied ? 'コピーしました' : 'コピー'}
+                            </button>
+                        </div>
+
+                        <div className="mt-4 whitespace-pre-wrap rounded-md border bg-gray-50 p-4 leading-7">
+                            {shareText}
                         </div>
                     </div>
                 </div>
