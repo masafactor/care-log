@@ -65,6 +65,8 @@ const mainNavItems: NavItem[] = [
     { title: '介護記録', href: '/care-records', icon: FileText },
     { title: '申し送り', href: '/handovers', icon: ClipboardList },
     { title: '家族向けメモ', href: '/family-notes', icon: MessageSquareText },
+    {title: '月次レポート',href: route('family-notes.report'),icon: FileText,
+},
     ...(isAdmin
         ? [
               { title: '職員管理', href: route('admin.users.index'), icon: Users },
