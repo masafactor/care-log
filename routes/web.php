@@ -34,6 +34,9 @@ Route::middleware(['auth', 'verified', 'active'])->group(function () {
 
     Route::get('family-notes-report', [FamilyNoteReportController::class, 'index'])
     ->name('family-notes.report');
+
+    Route::post('family-notes-report/mark-shared', [FamilyNoteReportController::class, 'updateShared'])
+    ->name('family-notes.report.mark-shared');
     
     Route::resource('family-notes', FamilyNoteController::class)
     ->except(['destroy']);

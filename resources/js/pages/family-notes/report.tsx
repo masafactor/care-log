@@ -1,5 +1,5 @@
 import AppLayout from '@/layouts/app-layout';
-import { Head, router } from '@inertiajs/react';
+import { Head, router, useForm } from '@inertiajs/react';
 import { FormEvent, useState } from 'react';
 import { route } from 'ziggy-js';
 
@@ -66,6 +66,28 @@ export default function FamilyNotesReport({
         window.print();
     };
 
+    const markAsShared = () => {
+        if (!residentId) {
+            alert('利用者を選択してください。');
+            return;
+        }
+
+        if (!confirm('対象月の共有可能メモを共有済みに変更しますか？')) {
+            return;
+        }
+
+        router.post(
+            route('family-notes.report.mark-shared'),
+            {
+                resident_id: residentId,
+                month,
+            },
+            {
+                preserveScroll: true,
+            },
+        );
+    };
+
     return (
         <AppLayout>
             <Head title="家族向け月次レポート" />
@@ -122,6 +144,14 @@ export default function FamilyNotesReport({
                             className="rounded-md bg-black px-4 py-2 text-sm font-medium text-white"
                         >
                             表示
+                        </button>
+
+                        <button
+                            type="button"
+                            onClick={markAsShared}
+                            className="rounded-md border px-4 py-2 text-sm"
+                        >
+                            共有済みにする
                         </button>
 
                         <button

@@ -9,6 +9,8 @@ use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Inertia\Response;
+use App\Application\AuditLogs\UseCases\CreateAuditLogUseCase;
+use Illuminate\Http\RedirectResponse;
 
 class FamilyNoteReportController extends Controller
 {
@@ -73,5 +75,41 @@ class FamilyNoteReportController extends Controller
                 'month' => $month,
             ],
         ]);
+    }
+
+    public function updateShared(
+        Request $request,
+        CreateAuditLogUseCase $auditLogUseCase
+    ): RedirectResponse {
+        $validated = $request->validate([
+            'resident_id' => ['required', 'exists:residents,id'],
+            'month' => ['required', 'date_format:Y-m'],
+        ]);
+
+        $startDate = Carbon::parse($validated['month'] . '-01')->startOfMonth();
+        $endDate = Carbon::parse($validated['month'] . '-01')->endOfMonth();
+
+        $updatedCount = FamilyNote::query()
+            ->where('resident_id', $validated['resident_id'])
+            ->whereBetween('note_date', [$startDate, $endDate])
+            ->where('status', FamilyNoteStatus::Shareable->value)
+            ->update([
+                'status' => FamilyNoteStatus::Shared->value,
+            ]);
+
+        $auditLogUseCase->handle(
+            request: $request,
+            action: 'family_note_report.marked_shared',
+            targetType: Resident::class,
+            targetId: (int) $validated['resident_id'],
+            description: "{$validated['month']} の家族向けメモを {$updatedCount} 件、共有済みに変更しました。",
+        );
+
+        return redirect()
+            ->route('family-notes.report', [
+                'resident_id' => $validated['resident_id'],
+                'month' => $validated['month'],
+            ])
+            ->with('success', '対象月の家族向けメモを共有済みに変更しました。');
     }
 }
