@@ -10,12 +10,15 @@ use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\Admin\AuditLogController;
 use App\Http\Controllers\FamilyNoteController;
 use App\Http\Controllers\FamilyNoteReportController;
+use App\Http\Controllers\ResidentTimelineController;
 
 Route::inertia('/', 'welcome')->name('home');
 
 Route::middleware(['auth', 'verified', 'active'])->group(function () {
     Route::get('dashboard', DashboardController::class)
         ->name('dashboard');
+    Route::get('residents/{resident}/timeline', [ResidentTimelineController::class, 'show'])
+    ->name('residents.timeline');
 
     Route::resource('residents', ResidentController::class)
         ->except(['destroy']);

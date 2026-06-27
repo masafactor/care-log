@@ -96,6 +96,13 @@ export default function ResidentsShow({
                         </Link>
 
                         <Link
+                            href={route('residents.timeline', resident.id)}
+                            className="rounded-md border px-4 py-2 text-sm"
+                        >
+                            タイムライン
+                        </Link>
+
+                        <Link
                             href={returnUrl ?? route('residents.index')}
                             className="rounded-md border px-4 py-2 text-sm"
                         >
