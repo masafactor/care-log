@@ -1,6 +1,8 @@
 import AppLayout from '@/layouts/app-layout';
-import { Head, Link } from '@inertiajs/react';
 import { route } from 'ziggy-js';
+import { Head, Link, router } from '@inertiajs/react';
+import { FormEvent, useState } from 'react';
+
 
 type Resident = {
     id: number;
@@ -25,15 +27,48 @@ type TimelineItem = {
     status_label?: string;
 };
 
+type Filters = {
+    type?: string | null;
+    date_from?: string | null;
+    date_to?: string | null;
+};
+
 type Props = {
     resident: Resident;
     timelineItems: TimelineItem[];
+    filters: Filters;
 };
 
 export default function ResidentTimeline({
     resident,
     timelineItems,
+    filters,
 }: Props) {
+
+    const [type, setType] = useState(filters.type ?? '');
+    const [dateFrom, setDateFrom] = useState(filters.date_from ?? '');
+    const [dateTo, setDateTo] = useState(filters.date_to ?? '');
+
+    const submit = (e: FormEvent) => {
+        e.preventDefault();
+
+        router.get(
+            route('residents.timeline', resident.id),
+            {
+                type,
+                date_from: dateFrom,
+                date_to: dateTo,
+            },
+            {
+                preserveState: true,
+                preserveScroll: true,
+            },
+        );
+    };
+
+    const clearFilters = () => {
+        router.get(route('residents.timeline', resident.id));
+    };
     return (
         <AppLayout>
             <Head title="利用者タイムライン" />
@@ -70,6 +105,68 @@ export default function ResidentTimeline({
                         {resident.status_label}
                     </p>
                 </div>
+
+                <form
+                    onSubmit={submit}
+                    className="grid gap-3 rounded-lg border bg-white p-4 md:grid-cols-4"
+                >
+                    <div>
+                        <label className="block text-sm font-medium">
+                            種別
+                        </label>
+                        <select
+                            value={type}
+                            onChange={(e) => setType(e.target.value)}
+                            className="mt-1 w-full rounded-md border px-3 py-2"
+                        >
+                            <option value="">すべて</option>
+                            <option value="care_record">介護記録</option>
+                            <option value="handover">申し送り</option>
+                            <option value="family_note">家族向けメモ</option>
+                        </select>
+                    </div>
+
+                    <div>
+                        <label className="block text-sm font-medium">
+                            開始日
+                        </label>
+                        <input
+                            type="date"
+                            value={dateFrom}
+                            onChange={(e) => setDateFrom(e.target.value)}
+                            className="mt-1 w-full rounded-md border px-3 py-2"
+                        />
+                    </div>
+
+                    <div>
+                        <label className="block text-sm font-medium">
+                            終了日
+                        </label>
+                        <input
+                            type="date"
+                            value={dateTo}
+                            onChange={(e) => setDateTo(e.target.value)}
+                            className="mt-1 w-full rounded-md border px-3 py-2"
+                        />
+                    </div>
+
+                    <div className="flex items-end gap-2">
+                        <button
+                            type="submit"
+                            className="rounded-md bg-black px-4 py-2 text-sm font-medium text-white"
+                        >
+                            絞り込み
+                        </button>
+
+                        <button
+                            type="button"
+                            onClick={clearFilters}
+                            className="rounded-md border px-4 py-2 text-sm"
+                        >
+                            クリア
+                        </button>
+                    </div>
+                </form>
 
                 <div className="rounded-lg border bg-white">
                     <div className="border-b p-4">
